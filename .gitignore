@@ -1,2 +1,22 @@
-# Google App Engine generated folder
-appengine-generated/
+tmp/
+.vscode/
+
+# Logs
+logs
+*.log
+
+.DS_Store
+/build
+/coverage
+/vscode
+/.vscode
+.vscode
+.idea/
+/reports
+.cache
+.idea/*
+.idea/dictionaries/masha.xml
+/.env
+/.env.production
+/env-config.js
+/.env.random

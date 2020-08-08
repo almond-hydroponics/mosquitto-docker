@@ -1,0 +1,24 @@
+version: '3'
+services:
+  redis:
+    image: redis:6.0.3-alpine
+    volumes:
+      - ${PWD}/tmp/data:/data
+    ports:
+      - "6379:6379"
+    container_name: "redis-mosq"
+
+  mosquitto:
+    build: .
+    volumes:
+      - ${PWD}/auth-plugin.conf:/etc/mosquitto.d/auth-plugin.conf
+    ports:
+      - "1883:1883"
+      - "9883:9883"
+    environment:
+      - DOMAIN=example.local
+      - PORT=8080
+    depends_on:
+      - redis
+    labels:
+      - "local.example.description=Mosquitto v1.6.9 MQTT server"
