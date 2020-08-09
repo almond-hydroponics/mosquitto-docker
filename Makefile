@@ -1,73 +1,49 @@
-# Project variables
-PROJECT_NAME ?= almond-re
-TARGET_MAX_CHAR_NUM=10
-# File names
+.PHONY: help
+.DEFAULT_GOAL := help
+
+DOCKER=$(shell which docker)
+REPOSITORY ?= almond/mqtt
+VERSION ?= v1.6.9
 DOCKER_DEV_COMPOSE_FILE := docker-compose.yml
+NAME := "almond"
+TAG := $(git log -1 --pretty=%!H)
+IMG := ${NAME}:${TAG}
+LATEST := ${NAME}:latest
 
-.PHONY: help build start stop clean
+build: ## build the docker image from Dockerfile
+	$(DOCKER) build --no-cache -t ${REPOSITORY}:${VERSION} \
+        --build-arg VERSION=${VERSION} \
+        --build-arg VCS_REF=`git rev-parse --short HEAD` \
+        --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` .
 
-#@-- help command to show usage of make commands --@#
-help:
-	@echo ''
-	@echo 'Usage:'
-	@echo '${YELLOW} make ${RESET} ${GREEN}<target> [options]${RESET}'
-	@echo ''
-	@echo 'Targets:'
-	@awk '/^[a-zA-Z\-\_0-9]+:/ { \
-		message = match(lastLine, /^## (.*)/); \
-		if (message) { \
-			command = substr($$1, 0, index($$1, ":")-1); \
-			message = substr(lastLine, RSTART + 3, RLENGTH); \
-			printf "  ${YELLOW}%-$(TARGET_MAX_CHAR_NUM)s${RESET} %s\n", command, message; \
-		} \
-	} \
-	{ lastLine = $$0 }' $(MAKEFILE_LIST)
-	@echo ''
+#build:
+#	@docker build -t ${IMG} .
+#	@docker tag ${IMG} ${LATEST}
 
-#@-- command to build the application image--@#
-background:
-	@ ${INFO} "Building required docker images"
-	@ docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) build web
-	@ ${INFO} "Starting background local development server"
-	@ docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) up -d
-
-#@-- command to start the application container --@#
-start:
-	@ ${INFO} "Building required docker images"
-	@ docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) build web
-	@ ${SUCCESS} "Build Completed successfully"
-	@ echo " "
-	@ ${INFO} "Starting local development server"
-	@ docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) up -d
-
-#@-- command to stop the application container --@#
 stop:
 	${INFO} "Stop development server containers"
-	@ docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) down -v
-	${SUCCESS} "All containers stopped successfully"
+	@docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) down -v
+	${INFO} "All containers stopped successfully"
 
-#@-- command to test the application --@#
-test:background
-	@ ${INFO} "Running tests in docker container"
-	@ docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) exec web yarn test
+push:
+	@docker push ${REPOSITORY}
 
-#@-- command to remove the images created --@#
+login:
+	@docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
+
 clean:
 	${INFO} "Cleaning your local environment"
-	${EXTRA} "Note all ephemeral volumes will be destroyed"
+	${INFO} "Note all ephemeral volumes will be destroyed"
 	@ docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) down -v
+	@ docker volume rm db_data
 	@ docker images -q -f label=application=$(PROJECT_NAME) | xargs -I ARGS docker rmi -f ARGS
 	${INFO} "Removing dangling images"
+	@ docker images -q -f dangling=true -f label=application=$(PROJECT_NAME) | xargs -I ARGS docker rmi -f ARGS
 	@ docker system prune
-	${SUCCESS} "Clean complete"
+	${INFO} "Clean complete"
 
-#@-- command to ssh into service container --@#
-ssh:background
-	${INFO} "Opening web container terminal"
-	@ docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) exec web bash
-
-#@-- help should be run by default when no command is specified --@#
-default: help
+help:
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
 # COLORS
 GREEN  := $(shell tput -Txterm setaf 2)

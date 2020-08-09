@@ -1,4 +1,4 @@
-FROM alpine:3.11.2
+FROM alpine:3.12
 
 # Build-time metadata as defined at http://label-schema.org
 ARG BUILD_DATE
@@ -91,9 +91,9 @@ RUN apk --no-cache add --virtual buildDeps git cmake build-base openssl-dev c-ar
 ADD mosquitto.conf /etc/mosquitto/mosquitto.conf
 
 # MQTT default port and default port over TLS
-EXPOSE 1883 8883
+EXPOSE 1883
 # MQTT over websocket default port and default port over TLS
-EXPOSE 9001 9002
+EXPOSE 8083
 
 VOLUME ["/var/lib/mosquitto", "/etc/mosquitto", "/etc/mosquitto.d"]
 
