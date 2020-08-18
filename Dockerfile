@@ -4,9 +4,10 @@ FROM alpine:3.12
 ARG BUILD_DATE
 ARG VCS_REF
 ARG VERSION
+LABEL application="almond-mqtt"
 LABEL maintainer="Francis Masha <francismasha96@gmail.com>" \
       org.label-schema.build-date=$BUILD_DATE \
-      org.label-schema.name="mosquitto MQTT Broker with auth-plugin" \
+      org.label-schema.name="Mosquitto MQTT Broker with auth-plugin" \
       org.label-schema.description="This project builds almond mosquitto with auth-plugin. \
       It also has mosquitto_pub, mosquitto_sub and np." \
       org.label-schema.vcs-ref=$VCS_REF \
@@ -17,7 +18,7 @@ RUN addgroup -S mosquitto && \
     adduser -S -H -h /var/empty -s /sbin/nologin -D -G mosquitto mosquitto
 
 ENV PATH=/usr/local/bin:/usr/local/sbin:$PATH
-ENV MOSQUITTO_VERSION=1.6.9
+ENV MOSQUITTO_VERSION=1.6.11
 ENV LIBWEBSOCKETS_VERSION=v2.4.2
 
 COPY run.sh /
@@ -91,7 +92,7 @@ RUN apk --no-cache add --virtual buildDeps git cmake build-base openssl-dev c-ar
 ADD mosquitto.conf /etc/mosquitto/mosquitto.conf
 
 # MQTT default port and default port over TLS
-EXPOSE 1883
+EXPOSE 1883 8883
 # MQTT over websocket default port and default port over TLS
 EXPOSE 8083
 
