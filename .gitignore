@@ -20,3 +20,13 @@ logs
 /.env.production
 /env-config.js
 /.env.random
+/certs/ca.srl
+/certs/ca.crt
+/certs/ca.key
+/certs/client.key
+/certs/server.crt
+/certs/server.csr
+/certs/client.csr
+/certs/client.crt
+/certs/server.key
+/certs/mosquitto.db

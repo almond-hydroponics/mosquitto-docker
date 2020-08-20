@@ -22,7 +22,7 @@ start:
 	${INFO} "Starting docker process"
 	@ echo " "
 	@ ${INFO} "Building required docker images"
-	@ make build
+	@ docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) build mosquitto
 	@ ${INFO} "Build Completed successfully"
 	@ echo " "
 	@ ${INFO} "Starting local development server"
@@ -31,7 +31,7 @@ start:
 #@-- command to stop the application container --@#
 stop:
 	${INFO} "Stop development server containers"
-	@docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) down -v
+	@ docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) down -v
 	${INFO} "All containers stopped successfully"
 
 #@-- command to push the image to the repository --@#

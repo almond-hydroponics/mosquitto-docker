@@ -5,7 +5,7 @@ services:
     restart: always
     build: .
     volumes:
-      - ${PWD}/auth-plugin.conf:/etc/mosquitto.d/auth-plugin.conf
+      - ./auth-plugin.conf:/etc/mosquitto.d/auth-plugin.conf
       - ./mosquitto.conf:/etc/mosquitto/mosquitto.conf
       - ./certs:/var/lib/mosquitto
     ports:
@@ -22,6 +22,6 @@ services:
     restart: always
     image: redis:6.0.6-alpine
     volumes:
-      - ${PWD}/tmp/data:/data
+      - ./tmp/data:/data
     ports:
       - "6378:6379"
