@@ -4,24 +4,24 @@ services:
     container_name: mosquitto
     restart: always
     build: .
-    volumes:
-      - ./auth-plugin.conf:/etc/mosquitto.d/auth-plugin.conf
-      - ./mosquitto.conf:/etc/mosquitto/mosquitto.conf
-      - ./certs:/var/lib/mosquitto
+    networks:
+      - almond-net
     ports:
-      - "1883:1883"
-      - "8083:8083"
-      - "8883:8883"
-    depends_on:
-      - redis
-    labels:
-      - "local.example.description=Mosquitto MQTT server"
-
-  redis:
-    container_name: redis-mqtt
-    restart: always
-    image: redis:6.0.6-alpine
+      - 1883:1883
+      - 8083:8083
+      - 8883:8883
+      - 80:80
+    environment:
+      - DOMAIN=almondhydroponics.com
+      - EMAIL=francismasha96@gmail.com
     volumes:
-      - ./tmp/data:/data
-    ports:
-      - "6378:6379"
+      - ./mosquitto.conf:/mosquitto/conf/mosquitto.conf
+      - ./mosquitto.log:/mosquitto/log/mosquitto.log
+      - ./mosquitto/conf/:/mosquitto/conf
+      - ./mosquitto/log/:/mosquitto/log
+      - ./letsencrypt:/etc/letsencrypt
+      - ./scripts:/scripts
+networks:
+  almond-net:
+    external:
+      name: almond-net
