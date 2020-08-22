@@ -20,12 +20,14 @@ build:
 #@-- command to start the application container --@#
 start:
 	${INFO} "Starting docker process"
+	${INFO} "Creating almond-net network"
+	@ docker network create almond-net || true
 	@ echo " "
-	@ ${INFO} "Building required docker images"
+	${INFO} "Building required docker images"
 	@ docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) build mosquitto
-	@ ${INFO} "Build Completed successfully"
+	${INFO} "Build Completed successfully"
 	@ echo " "
-	@ ${INFO} "Starting local development server"
+	${INFO} "Starting local development server"
 	@ docker-compose up -d
 
 #@-- command to stop the application container --@#

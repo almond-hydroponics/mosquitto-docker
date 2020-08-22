@@ -30,3 +30,4 @@ logs
 /certs/client.crt
 /certs/server.key
 /certs/mosquitto.db
+/letsencrypt/
