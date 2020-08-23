@@ -11,16 +11,25 @@ services:
       - 8083:8083
       - 8883:8883
       - 80:80
+    depends_on:
+      - redis
     environment:
       - DOMAIN=almondhydroponics.com
       - EMAIL=francismasha96@gmail.com
     volumes:
-      - ./mosquitto.conf:/mosquitto/conf/mosquitto.conf
-      - ./mosquitto.log:/mosquitto/log/mosquitto.log
-      - ./mosquitto/conf/:/mosquitto/conf
-      - ./mosquitto/log/:/mosquitto/log
+      - ./auth-plugin.conf:/etc/mosquitto.d/auth-plugin.conf
       - ./letsencrypt:/etc/letsencrypt
       - ./scripts:/scripts
+  redis:
+    container_name: redis-mqtt
+    restart: always
+    image: redis:6.0.6-alpine
+    volumes:
+      - ./tmp/data:/data
+    ports:
+      - "6378:6379"
+    networks:
+      - almond-net
 networks:
   almond-net:
     external:
