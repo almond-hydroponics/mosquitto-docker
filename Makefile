@@ -21,7 +21,7 @@ build:
 start:
 	${INFO} "Starting docker process"
 	${INFO} "Creating almond-net network"
-	@ docker network create almond-net || true
+	@ docker network create mosquitto-net || true
 	@ echo " "
 	${INFO} "Building required docker images"
 	@ docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) build mosquitto

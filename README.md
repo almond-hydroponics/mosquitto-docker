@@ -36,7 +36,7 @@ By default, there is an `admin` superuser added to `auth-plugin.conf`. We will u
 
 (or whatever user u have configured...)
 
-    $ docker run -ti --rm almond/mqtt:v1.6.11 np -p secretpass
+    $ docker run -ti --rm mosquitto-docker_mosquitto np -p "secretpass"
     PBKDF2$sha256$901$5nH8dWZV5NXTI63/$0n3XrdhMxe7PedKZUcPKMd0WHka4408V
 
     $ docker exec -it redis-mqtt redis-cli

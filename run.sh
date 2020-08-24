@@ -1,13 +1,14 @@
 #!/bin/bash
+set -e
 
 # Check and if needed install/renew certs
-# 	Note that this script (certbot.sh) is also
-# 	run weekly from /etc/periodic/weekly/croncert.sh
+# Note that this script (certbot.sh) is also
+# run weekly from /etc/periodic/weekly/croncert.sh
 #
 #	WARNING:
-#		During the weekly check, if certs are renewed,
-#		the mosquitto process is restarted, causing
-#		a brief (few second) unavoidable service disruption
+#	During the weekly check, if certs are renewed,
+#	the mosquitto process is restarted, causing
+#	a brief (few second) unavoidable service disruption
 #
 /certbot.sh
 
@@ -26,26 +27,26 @@
 #	simply generate warnings, but continue to function.
 #
 # create blank passwd if it doesn't exist
-if [ -d "/mosquitto/log" ]; then
-	if [ ! -f "/mosquitto/conf/mosquitto.log" ]; then
-		echo "Creating blank log file at /mosquitto/conf/log"
-		touch /mosquitto/conf/mosquitto.log
-	fi
-else
-	echo "WARNING: missing /mosquitto/log directory"
-	echo "WARNING: ignore if your mosquitto.conf has a non-standard configuration"
-fi
+#if [ -d "/mosquitto/log" ]; then
+#	if [ ! -f "/mosquitto/conf/mosquitto.log" ]; then
+#		echo "Creating blank log file at /mosquitto/conf/log"
+#		touch /mosquitto/conf/mosquitto.log
+#	fi
+#else
+#	echo "WARNING: missing /mosquitto/log directory"
+#	echo "WARNING: ignore if your mosquitto.conf has a non-standard configuration"
+#fi
 
 # create blank passwd if it doesn't exist
-if [ -d "/mosquitto/conf" ]; then
-	if [ ! -f "/mosquitto/conf/passwd" ]; then
-		echo "Creating blank passwd file at /mosquitto/conf/passwd"
-		touch /mosquitto/conf/passwd
-	fi
-else
-	echo "WARNING: /mosquitto/conf should be mapped to persistent docker volume"
-	echo "WARNING: ignore if your mosquitto.conf has a non-standard configuration"
-fi
+#if [ -d "/mosquitto/conf" ]; then
+#	if [ ! -f "/mosquitto/conf/passwd" ]; then
+#		echo "Creating blank passwd file at /mosquitto/conf/passwd"
+#		touch /mosquitto/conf/passwd
+#	fi
+#else
+#	echo "WARNING: /mosquitto/conf should be mapped to persistent docker volume"
+#	echo "WARNING: ignore if your mosquitto.conf has a non-standard configuration"
+#fi
 
 # execute any pre-exec scripts, useful for customization of images
 if [ -d "/scripts" ]; then
@@ -59,22 +60,30 @@ if [ -d "/scripts" ]; then
 	done
 fi
 
+chown mosquitto:mosquitto -R /var/lib/mosquitto
+
 echo "Starting mosquitto process (daemon)..."
-if [ -f "/mosquitto/conf/mosquitto.conf" ]; then
-	# Note that this method of starting mosquitto results in the process
-	# not receiving the SIGTERM signal from Docker on shutdown.  This is
-	# necessary because mosquitto must be restarted automatically when
-	# certificates are renewed. In other words, we need the container to
-	# continue running beyond the life of the mosquitto process.
-	#
-	# A possible enhancement would be to include an "is alive" check
-	# for mosquitto to restart it if required or exit the container.
-	/usr/sbin/mosquitto -c /mosquitto/conf/mosquitto.conf&
-	echo "Going to sleep..."
-	# sleep infinity not available, so 9999d should be an acceptable substitute :-)
-	sleep 9999d
-else
-	echo "ERROR: missing /mosquitto/conf/mosquitto.conf"
-	echo "ERROR: check your Docker volume mappings"
-	echo "Exiting..."
+if [ "$1" = 'mosquitto' ]; then
+	exec /usr/sbin/mosquitto -c /etc/mosquitto/mosquitto.conf
 fi
+
+exec "$@"
+
+#if [ -f "/mosquitto/conf/mosquitto.conf" ]; then
+#	# Note that this method of starting mosquitto results in the process
+#	# not receiving the SIGTERM signal from Docker on shutdown.  This is
+#	# necessary because mosquitto must be restarted automatically when
+#	# certificates are renewed. In other words, we need the container to
+#	# continue running beyond the life of the mosquitto process.
+#	#
+#	# A possible enhancement would be to include an "is alive" check
+#	# for mosquitto to restart it if required or exit the container.
+#	/usr/sbin/mosquitto -c /mosquitto/conf/mosquitto.conf&
+#	echo "Going to sleep..."
+#	# sleep infinity not available, so 9999d should be an acceptable substitute :-)
+#	sleep 9999d
+#else
+#	echo "ERROR: missing /mosquitto/conf/mosquitto.conf"
+#	echo "ERROR: check your Docker volume mappings"
+#	echo "Exiting..."
+#fi
