@@ -16,7 +16,7 @@ services:
       - redis
     environment:
       - DOMAIN=mqtt.almondhydroponics.com
-      - EMAIL=francismasha96@gmail.com
+      - EMAIL=almond.froyo@gmail.com
     volumes:
       - ./auth-plugin.conf:/etc/mosquitto.d/auth-plugin.conf
       - ./letsencrypt:/etc/letsencrypt
@@ -28,7 +28,7 @@ services:
     volumes:
       - ./tmp/data:/data
     ports:
-      - "6378:6379"
+      - "6379:6379"
     networks:
       - mosquitto-net
 networks:

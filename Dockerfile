@@ -1,4 +1,4 @@
-FROM python:3.7-alpine
+FROM python:3.9-alpine
 
 # Build-time metadata as defined at http://label-schema.org
 ARG BUILD_DATE
@@ -98,10 +98,12 @@ RUN apk add --no-cache --virtual buildDeps git cmake build-base c-ares-dev opens
     apk del buildDeps && rm -rf /var/cache/apk/*
 
 ADD mosquitto.conf /etc/mosquitto/mosquitto.conf
+RUN mkdir -p /mosquitto
+RUN mkdir -p /mosquitto/log
 
-COPY run.sh /run.sh
 COPY certbot.sh /certbot.sh
 COPY restart.sh /restart.sh
+COPY run.sh /run.sh
 COPY croncert.sh /etc/periodic/weekly/croncert.sh
 RUN \
 	chmod +x /run.sh && \

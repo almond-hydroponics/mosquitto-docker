@@ -9,7 +9,7 @@ set -e
 #	During the weekly check, if certs are renewed,
 #	the mosquitto process is restarted, causing
 #	a brief (few second) unavoidable service disruption
-#
+
 /certbot.sh
 
 # This script assumes a standard persistent directory and file layout of:
@@ -25,19 +25,19 @@ set -e
 #	The location of the log directory and passwd file can be
 #	mapped differently in mosquitto.conf.  If so, this script will
 #	simply generate warnings, but continue to function.
-#
-# create blank passwd if it doesn't exist
-#if [ -d "/mosquitto/log" ]; then
-#	if [ ! -f "/mosquitto/conf/mosquitto.log" ]; then
-#		echo "Creating blank log file at /mosquitto/conf/log"
-#		touch /mosquitto/conf/mosquitto.log
-#	fi
-#else
-#	echo "WARNING: missing /mosquitto/log directory"
-#	echo "WARNING: ignore if your mosquitto.conf has a non-standard configuration"
-#fi
 
-# create blank passwd if it doesn't exist
+# create log file if it doesn't exist
+if [ -d "/mosquitto/log" ]; then
+	if [ ! -f "/mosquitto/log/mosquitto.log" ]; then
+		echo "Creating blank log file at /mosquitto/log"
+		touch /mosquitto/log/mosquitto.log
+	fi
+else
+	echo "WARNING: missing /mosquitto/log directory"
+	echo "WARNING: ignore if your mosquitto.conf has a non-standard configuration"
+fi
+
+## create blank passwd if it doesn't exist
 #if [ -d "/mosquitto/conf" ]; then
 #	if [ ! -f "/mosquitto/conf/passwd" ]; then
 #		echo "Creating blank passwd file at /mosquitto/conf/passwd"
@@ -61,6 +61,7 @@ if [ -d "/scripts" ]; then
 fi
 
 chown mosquitto:mosquitto -R /var/lib/mosquitto
+chown mosquitto:mosquitto -R /mosquitto
 
 echo "Starting mosquitto process (daemon)..."
 if [ "$1" = 'mosquitto' ]; then
@@ -69,21 +70,21 @@ fi
 
 exec "$@"
 
-#if [ -f "/mosquitto/conf/mosquitto.conf" ]; then
-#	# Note that this method of starting mosquitto results in the process
-#	# not receiving the SIGTERM signal from Docker on shutdown.  This is
-#	# necessary because mosquitto must be restarted automatically when
-#	# certificates are renewed. In other words, we need the container to
-#	# continue running beyond the life of the mosquitto process.
-#	#
-#	# A possible enhancement would be to include an "is alive" check
-#	# for mosquitto to restart it if required or exit the container.
-#	/usr/sbin/mosquitto -c /mosquitto/conf/mosquitto.conf&
-#	echo "Going to sleep..."
-#	# sleep infinity not available, so 9999d should be an acceptable substitute :-)
-#	sleep 9999d
-#else
-#	echo "ERROR: missing /mosquitto/conf/mosquitto.conf"
-#	echo "ERROR: check your Docker volume mappings"
-#	echo "Exiting..."
-#fi
+if [ -f "/mosquitto/conf/mosquitto.conf" ]; then
+	# Note that this method of starting mosquitto results in the process
+	# not receiving the SIGTERM signal from Docker on shutdown.  This is
+	# necessary because mosquitto must be restarted automatically when
+	# certificates are renewed. In other words, we need the container to
+	# continue running beyond the life of the mosquitto process.
+	#
+	# A possible enhancement would be to include an "is alive" check
+	# for mosquitto to restart it if required or exit the container.
+	/usr/sbin/mosquitto -c /mosquitto/conf/mosquitto.conf&
+	echo "Going to sleep..."
+	# sleep infinity not available, so 9999d should be an acceptable substitute :-)
+	sleep 9999d
+else
+	echo "ERROR: missing /mosquitto/conf/mosquitto.conf"
+	echo "ERROR: check your Docker volume mappings"
+	echo "Exiting..."
+fi
