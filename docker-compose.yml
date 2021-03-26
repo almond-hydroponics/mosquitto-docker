@@ -23,6 +23,8 @@ services:
       - ./scripts:/scripts
   redis:
     container_name: redis-mqtt
+    build: 
+        context: ./redis
     restart: always
     image: redis:6.0.6-alpine
     volumes:
