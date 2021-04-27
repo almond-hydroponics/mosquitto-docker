@@ -1,3 +1,5 @@
-FROM redis:6.0.6-alpine
-RUN sysctl vm.overcommit_memory=1
-RUN sysctl -w net.core.somaxconn=512
+FROM redis:6.2.2-alpine
+WORKDIR /redis
+COPY redis.conf /usr/local/etc/redis/redis.conf
+COPY init.sh ./
+RUN chmod +x init.sh

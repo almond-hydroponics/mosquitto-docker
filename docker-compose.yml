@@ -23,14 +23,15 @@ services:
       - ./scripts:/scripts
   redis:
     container_name: redis-mqtt
-    build: 
-        context: ./redis
+    build:
+      context: ./redis
     restart: always
-    image: redis:6.0.6-alpine
+    privileged: true
+    command: sh -c "/redis/init.sh"
     volumes:
       - ./tmp/data:/data
-    ports:
-      - "6379:6379"
+#    ports:
+#      - "6379:6379"
     networks:
       - mosquitto-net
 networks:
