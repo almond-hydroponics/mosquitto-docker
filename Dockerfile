@@ -1,4 +1,4 @@
-FROM python:3.9-alpine
+FROM python:3.12.0a5-alpine
 
 # Build-time metadata as defined at http://label-schema.org
 ARG BUILD_DATE
